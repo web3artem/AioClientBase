@@ -39,9 +39,6 @@ async def summarizing_data(message: types.Message, state: FSMContext):
                          f'<b>Тип</b> кожи: {data["skin_type"]}\n'
                          f'<b>Хронические</b> заболевания: {data["chronic_diseases"]}\n'
                          f'<b>Препараты</b>: {data["medication"]}\n'
-                         f'<b>Дата</b> последнего приема клиента: {data["date_of_receipt"]}\n'
-                         f'<b>Процедуры</b>: {data["manipulations"]}\n'
-                         f'<b>Рекомендации</b>: {data["recommendations"]}\n'
                          f'<b>Дополнительная информация</b>: {data["notes"]}',
                          reply_markup=yes_kb_builder.as_markup(resize_keyboard=True))
     await state.set_state(ClientAdd.summary)

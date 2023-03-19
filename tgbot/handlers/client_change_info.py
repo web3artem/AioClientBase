@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 
 from tgbot.keyboards.add_or_delete import add_or_delete_ikb
 from tgbot.keyboards.change_kb import change_or_accept_kb, change_ikb
+from tgbot.keyboards.main_kb import main_kb_builder
 from tgbot.misc.funcs import validate_date
 from tgbot.models.client import Client
 from tgbot.models.db_commands import retrieve_info, get_client_from_db
@@ -27,6 +28,7 @@ async def get_client_info(message: types.Message, state: FSMContext):
     output_list = await get_client_from_db(message)
     await state.clear()
     await state.update_data(fio=message.text)
+    await state.get_state()
     await message.answer(f'Информация о клиенте 👱🏻‍♀️:\n'
                          f'{output_list}', reply_markup=change_or_accept_kb.as_markup())
 
@@ -42,7 +44,8 @@ async def change_client(callback_query: types.CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cancel')
 async def change_client_cancel(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.answer()
-    await callback_query.message.answer('Хорошего дня! 🎉')
+    await callback_query.message.answer('Хорошего дня! 🎉',
+                                        reply_markup=main_kb_builder.as_markup(resize_keyboard=True))
 
 
 # Изменение ФИО
@@ -59,7 +62,8 @@ async def change_client_fio_set(message: types.Message, state: FSMContext):
     client = Client(FIO=data['fio'])
     await client.update(FIO=message.text).apply()
     await state.clear()
-    await message.answer(f'ФИО успешно изменено на {message.text} ✅')
+    await message.answer(f'ФИО успешно изменено на {message.text} ✅',
+                         reply_markup=main_kb_builder.as_markup(resize_keyboard=True))
 
 
 # Изменение даты рождения/возраста
@@ -78,7 +82,8 @@ async def change_client_birthdate(message: types.Message, state: FSMContext):
         client = Client(FIO=data['fio'])
         await client.update(age=new_date).apply()
         await state.clear()
-        await message.answer(f'Дата рождения успешно изменена ✅')
+        await message.answer(f'Дата рождения успешно изменена ✅',
+                             reply_markup=main_kb_builder.as_markup(resize_keyboard=True))
     else:
         await message.answer('К сожалению, дата рождения введена неверно. Попробуйте еще раз.')
 
@@ -97,7 +102,8 @@ async def change_client_phone_set(message: types.Message, state: FSMContext):
     client = Client(FIO=data['fio'])
     await client.update(mobile_phone=message.text).apply()
     await state.clear()
-    await message.answer(f'Номер телефона успешно изменен на {message.text} ✅')
+    await message.answer(f'Номер телефона успешно изменен на {message.text} ✅',
+                         reply_markup=main_kb_builder.as_markup(resize_keyboard=True))
 
 
 # Изменение хронических заболеваний
@@ -139,7 +145,8 @@ async def change_client_delete(message: types.Message, state: FSMContext):
         case 'skintype':
             await client.update(skin_type=message.text).apply()
     await state.clear()
-    await message.answer(f'Данные успешно изменены ✅')
+    await message.answer(f'Данные успешно изменены ✅',
+                         reply_markup=main_kb_builder.as_markup(resize_keyboard=True))
 
 
 @router.callback_query(F.data == 'add')
@@ -163,25 +170,14 @@ async def change_client_add_set(message: types.Message, state: FSMContext):
             old_data = client.medication
             new_data = old_data + ', ' + message.text
             await client.update(medication=new_data).apply()
-        case 'date':
-            old_data = client.date_of_receipt
-            new_data = old_data + ', ' + message.text
-            await client.update(date_of_receipt=new_data).apply()
-        case 'manipulations':
-            old_data = client.manipulations
-            new_data = old_data + ', ' + message.text
-            await client.update(manipulations=new_data).apply()
-        case 'recommendations':
-            old_data = client.recommendations
-            new_data = old_data + ', ' + message.text
-            await client.update(recommendations=new_data).apply()
         case 'notes':
             old_data = client.notes
             new_data = old_data + ', ' + message.text
             await client.update(notes=new_data).apply()
         case 'skintype':
-            old_data = client.skintype
+            old_data = client.skin_type
             new_data = old_data + ', ' + message.text
             await client.update(skin_type=new_data).apply()
     await state.clear()
-    await message.answer('Информация успешно добавлена ✅')
+    await message.answer('Информация успешно добавлена ✅',
+                         reply_markup=main_kb_builder.as_markup(resize_keyboard=True))

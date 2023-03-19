@@ -1,10 +1,11 @@
 from aiogram import Dispatcher, types
+from gino import MultipleResultsFound
 from loguru import logger
-from .client import db, Client
+from .client import db, Client, Visit
 from tgbot.config import get_postgres_uri
 from datetime import datetime
-from sqlalchemy import desc
 import datetime
+from sqlalchemy import desc
 
 
 async def on_startup(dispatcher: Dispatcher):
@@ -53,7 +54,7 @@ async def get_client_from_db(message: types.Message):
     client_instance = await Client.query.where(Client.FIO == message.text).gino.first()
     client_values = client_instance.__dict__['__values__'].values()
     client_keys = ['ФИО', 'Пол', 'Возраст', 'Номер телефона', 'Тип кожи', 'Хронические заболевания',
-                   'Препараты', 'Дата последнего приема', 'Процедуры', 'Рекомендации', 'Дополнительная информация']
+                   'Препараты', 'Дополнительная информация']
     client_keys = list(map(lambda key: f'{"<b>"}{key}{"</b>"}', client_keys))
     zipped = list(zip(client_keys, client_values))
     output_list = list(map(lambda x: f'{x[0]}: {x[1]} ', zipped))
@@ -72,3 +73,18 @@ def calculate_age(birth_date):
     if (current_month, current_day) < (birth_month, birth_day):
         age -= 1
     return str(age)
+
+
+async def save_visit(data: dict):
+    logger.info(f'Сохранение записи: {data["fio"]}')
+    visit_instance = Visit()
+    for key, value in data.items():
+        try:
+            if key == 'fio':
+                setattr(visit_instance, 'FIO', value)
+            else:
+                setattr(visit_instance, key, value)
+            logger.success(f'{key} - {value} успешно сохранен')
+        except Exception as e:
+            logger.error(f'Не удалось сохранить {key} - {value}, ошибка: {e}')
+    await visit_instance.create()

@@ -2,7 +2,7 @@ import datetime
 from typing import List
 
 from gino import Gino
-from sqlalchemy import Column, Integer, String, Text, Date
+from sqlalchemy import Column, Integer, String, Text, Date, ForeignKey
 
 db = Gino()
 
@@ -17,7 +17,13 @@ class Client(db.Model):
     skin_type = Column(Text, nullable=True)
     chronic_diseases = Column(Text, nullable=True)
     medication = Column(Text, nullable=True)
-    date_of_receipt = Column(Text, nullable=True)
-    manipulations = Column(Text, nullable=True)
-    recommendations = Column(Text, nullable=True)
     notes = Column(Text, nullable=True)
+
+
+class Visit(db.Model):
+    __tablename__ = 'visits'
+
+    FIO = Column(Text, primary_key=True)
+    date = Column(Date, primary_key=True)
+    procedures = Column(Text, nullable=True)
+    recommendations = Column(Text, nullable=True)

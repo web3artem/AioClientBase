@@ -4,7 +4,6 @@ from aiogram import types, Router, F
 from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 
-from loader import bot
 from tgbot.keyboards.main_kb import main_kb_builder, yes_kb_builder
 from tgbot.keyboards.gender_kb import gender_kb
 from tgbot.keyboards.skin_type_kb import skin_type_kb, generate_new_kb
@@ -18,10 +17,8 @@ router = Router()
 
 @router.message(Command('start'))
 async def cmd_start(message: types.Message):
-    await bot.send_animation(message.from_user.id,
-                             'BQACAgQAAxkBAAMsZBHvSsGiBMJqYZqxuqY_dWRxZJUAAr8QAAL30ZFQ2Z8k_Id3u08vBA',
-                             caption='Здравствуйте, <b>Наталья</b>👩‍⚕️\n\nДобро пожаловать в персонального бота! ❤️',
-                             reply_markup=main_kb_builder.as_markup(resize_keyboard=True))
+    await message.answer('Здравствуйте, <b>Наталья</b>👩‍⚕️\n\nДобро пожаловать в персонального бота! ❤️',
+                         reply_markup=main_kb_builder.as_markup(resize_keyboard=True))
 
 
 @router.message(F.text == 'Добавить клиента')
@@ -109,27 +106,6 @@ async def client_chronic_diseases(message: types.Message, state: FSMContext):
 @router.message(ClientAdd.medication)
 async def client_medication(message: types.Message, state: FSMContext):
     await state.update_data(medication=message.text)
-    await message.answer('Отлично! Сообщите дату последнего приема клиента в формате 01.01.1111 🕓')
-    await state.set_state(ClientAdd.date_of_receipt)
-
-
-@router.message(ClientAdd.date_of_receipt)
-async def client_date_of_receipt(message: types.Message, state: FSMContext):
-    await state.update_data(date_of_receipt=message.text)
-    await message.answer('Какие процедуры проводили с клиентом?')
-    await state.set_state(ClientAdd.manipulations)
-
-
-@router.message(ClientAdd.manipulations)
-async def client_manipulations(message: types.Message, state: FSMContext):
-    await state.update_data(manipulations=message.text)
-    await message.answer('Есть ли какие-либо рекомендации?')
-    await state.set_state(ClientAdd.recommendations)
-
-
-@router.message(ClientAdd.recommendations)
-async def client_recommendations(message: types.Message, state: FSMContext):
-    await state.update_data(recommendations=message.text)
     await message.answer('Введите дополнительную информацию 📝.')
     await state.set_state(ClientAdd.notes)
 
@@ -147,5 +123,6 @@ async def client_agree(callback_query: types.CallbackQuery, state: FSMContext):
         for key, value in data.items():
             print(f'{key} - {value}')
         await save_client(data)
-        await callback_query.answer('Спасибо, клиент успешно сохранен в базу данных!')
+        await callback_query.message.answer('Спасибо, клиент успешно сохранен в базу данных!',
+                                            reply_markup=main_kb_builder.as_markup(resize_keyboard=True))
         await state.clear()

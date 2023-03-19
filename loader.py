@@ -8,7 +8,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.enums.parse_mode import ParseMode
 
 from tgbot.config import load_config
-from tgbot.handlers import client_adding, client_change_info
+from tgbot.handlers import client_adding, client_change_info, client_notes
 
 config = load_config()
 storage = MemoryStorage()
@@ -22,13 +22,14 @@ async def main():
     await on_startup(dp)
     try:
         logger.success('Бот запущен')
-
         dp.include_routers(client_adding.router)
         dp.include_routers(client_change_info.router)
+        dp.include_routers(client_notes.router)
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot)
-    except:
+    except Exception as e:
         logger.error('Бот не запущен')
+        logger.error(e)
 
 
 if __name__ == '__main__':
