@@ -6,3 +6,6 @@ read_ikb.row(
     types.InlineKeyboardButton(text='Еще ➕', callback_data='more_note'),
     types.InlineKeyboardButton(text='Закончить 🛑', callback_data='cancel_note')
 )
+read_ikb.row(
+    types.InlineKeyboardButton(text='Изменить ✳️', callback_data='change_note_data')
+)

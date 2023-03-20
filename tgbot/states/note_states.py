@@ -6,3 +6,5 @@ class NoteState(StatesGroup):
     note_procedures = State()
     note_recommendations = State()
     note_open = State()
+    note_add_or_delete = State()
+

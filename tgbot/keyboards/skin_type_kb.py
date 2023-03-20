@@ -18,7 +18,13 @@ skin_type_kb.row(
     types.InlineKeyboardButton(text='Пигментация', callback_data='Пигментация')
 )
 skin_type_kb.row(
-    types.InlineKeyboardButton(text='Расширенные_поры', callback_data='Расширенные_поры')
+    types.InlineKeyboardButton(text='Расширенные_поры', callback_data='Расширенные_поры'),
+    types.InlineKeyboardButton(text='Купероз', callback_data='Купероз')
+)
+skin_type_kb.row(
+    types.InlineKeyboardButton(text='Розацеа', callback_data='Розацеа'),
+    types.InlineKeyboardButton(text='Атопия', callback_data='Атопия'),
+    types.InlineKeyboardButton(text='Акне', callback_data='Акне'),
 )
 
 

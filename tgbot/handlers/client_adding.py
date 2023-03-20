@@ -4,13 +4,12 @@ from aiogram import types, Router, F
 from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 
-from tgbot.keyboards.main_kb import main_kb_builder, yes_kb_builder
+from tgbot.keyboards.main_kb import main_kb_builder
 from tgbot.keyboards.gender_kb import gender_kb
 from tgbot.keyboards.skin_type_kb import skin_type_kb, generate_new_kb
 from tgbot.models.db_commands import save_client
 from tgbot.states.client_add_states import ClientAdd
-from tgbot.misc.funcs import validate_date, validate_int, summarizing_data
-from tgbot.models.client import Client
+from tgbot.misc.funcs import validate_date, summarizing_data
 
 router = Router()
 
@@ -19,6 +18,12 @@ router = Router()
 async def cmd_start(message: types.Message):
     await message.answer('Здравствуйте, <b>Наталья</b>👩‍⚕️\n\nДобро пожаловать в персонального бота! ❤️',
                          reply_markup=main_kb_builder.as_markup(resize_keyboard=True))
+
+
+@router.message(Command('cancel'))
+async def cmd_cancel(message: types.Message, state: FSMContext):
+    await state.clear()
+    await message.answer('Отменено', reply_markup=main_kb_builder.as_markup(resize_keyboard=True))
 
 
 @router.message(F.text == 'Добавить клиента')
@@ -39,7 +44,7 @@ async def client_fio(message: types.Message, state: FSMContext):
 async def client_gender(callback_query: types.CallbackQuery, state: FSMContext):
     await state.update_data(gender=callback_query.data)
     await state.set_state(ClientAdd.age)
-    await callback_query.message.answer('Напишите, пожалуйста, дату рождения клиента в формате 01.01.1111')
+    await callback_query.message.answer('Напишите, пожалуйста, дату рождения клиента в формате 01.01.2000')
     await callback_query.answer()
 
 
@@ -57,7 +62,7 @@ async def client_age(message: types.Message, state: FSMContext):
 async def client_mobile(message: types.Message, state: FSMContext):
     await state.update_data(mobile_phone=message.text)
     await state.set_state(ClientAdd.skin_type)
-    mes = await message.answer('Выберите тип кожи клиента!',
+    mes = await message.answer('Выберите тип кожи/состояние кожи клиента!',
                                reply_markup=skin_type_kb.as_markup())
     await state.update_data(msg=mes)
 

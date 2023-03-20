@@ -3,6 +3,7 @@ from datetime import datetime
 
 from gino import MultipleResultsFound
 from loguru import logger
+from sqlalchemy import desc
 from sqlalchemy import and_
 
 from tgbot.models.client import Visit
@@ -18,7 +19,7 @@ async def retrieve_note_info(fio: str):
             return [client_instances.date]
 
     except MultipleResultsFound as e:
-        client_instances = await Visit.select('date').where(Visit.FIO == fio).gino.all()
+        client_instances = await Visit.select('date').where(Visit.FIO == fio).order_by(desc('date')).gino.all()
         return [i[0] for i in client_instances]
 
 
@@ -32,3 +33,4 @@ async def get_info_about_date(data: dict):
     zipped = list(zip(client_keys, date_values))
     output_list = list(map(lambda x: f'{x[0]}: {x[1]} ', zipped))
     return '\n'.join(output_list)
+
